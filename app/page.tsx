@@ -11,7 +11,7 @@ import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import confetti from "canvas-confetti";
-import { addDays, format, startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
 
 /* ------------------------------------------------------------------ */
 /*  Placeholders (the only two filled-in values)                       */
@@ -49,7 +49,7 @@ const staggerChild: Variants = {
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
-type Slot = "Morning" | "Midday" | "Afternoon";
+type Slot = "Morning" | "Midday" | "Afternoon" | "Evening";
 
 export default function Home() {
   const [step, setStep] = useState(0);
@@ -172,7 +172,7 @@ function Greeting({ onAdvance }: { onAdvance: () => void }) {
         onClick={onAdvance}
         className={btnPrimary}
       >
-        Pour me a glass 🍷
+        We shall
       </motion.button>
     </div>
   );
@@ -234,10 +234,10 @@ function Identity({
 /*  Step 2 — The rigged warm-up                                        */
 /* ------------------------------------------------------------------ */
 const OUTINGS = [
-  "Brunch he'll over-research for three days",
+  "Brunch (he'll over-research for three days hhh)",
   "A walk where he pretends to know the way",
   "Anywhere, as long as he's talking",
-  "Surprise me (he's panicking already)",
+  "Surprise me (he's panicking already hhh)",
 ];
 
 function sliderCaption(value: number, snapBack: boolean) {
@@ -503,10 +503,11 @@ function TheQuestion({ onYes }: { onYes: () => void }) {
 /* ------------------------------------------------------------------ */
 /*  Step 4 — The calendar (date + daytime slot)                        */
 /* ------------------------------------------------------------------ */
-const SLOTS: { value: Slot; label: string }[] = [
-  { value: "Morning", label: "☕ Morning" },
-  { value: "Midday", label: "🌤️ Midday" },
-  { value: "Afternoon", label: "🍦 Afternoon" },
+const SLOTS: { value: Slot; icon: string; label: string }[] = [
+  { value: "Morning", icon: "☕", label: "Morning" },
+  { value: "Midday", icon: "🌤️", label: "Midday" },
+  { value: "Afternoon", icon: "🍦", label: "Afternoon" },
+  { value: "Evening", icon: "🌙", label: "Evening" },
 ];
 
 function CalendarStep({
@@ -523,7 +524,26 @@ function CalendarStep({
   onLockIn: () => void;
 }) {
   const today = startOfDay(new Date());
-  const maxDate = addDays(today, 28);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleLockIn = async () => {
+    if (!date || !slot) return;
+    setSubmitting(true);
+    // Send her answer to me — but never let a hiccup block the moment.
+    try {
+      await fetch("/api/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: format(date, "EEEE, MMMM d, yyyy"),
+          slot,
+        }),
+      });
+    } catch {
+      /* ignore — proceed to celebration regardless */
+    }
+    onLockIn();
+  };
 
   return (
     <div className="my-auto flex w-full flex-col items-center gap-6 text-center">
@@ -532,10 +552,9 @@ function CalendarStep({
           There it is. I knew you had taste.
         </p>
         <p>
-          But a &ldquo;yes&rdquo; is a beginning, not an end &mdash; now comes
-          the delicate matter of <em>when</em>. Choose a day worthy of you, and
-          an hour. We keep to daylight, I&rsquo;m told, which suits me. I look
-          my best before the wine.
+          But a &ldquo;yes&rdquo; is a beginning, not an end - now comes the
+          delicate matter of <em>when</em>. Choose a day worthy of you, and an
+          hour.
         </p>
       </div>
 
@@ -545,36 +564,38 @@ function CalendarStep({
           selected={date}
           onSelect={setDate}
           startMonth={today}
-          endMonth={maxDate}
-          disabled={[{ before: today }, { after: maxDate }]}
+          disabled={[{ before: today }]}
         />
       </div>
 
-      <div className="flex w-full justify-center gap-2">
+      <div className="grid w-full grid-cols-2 gap-2">
         {SLOTS.map((s) => {
           const active = slot === s.value;
           return (
             <button
               key={s.value}
               onClick={() => setSlot(s.value)}
-              className={`flex min-h-[48px] flex-1 items-center justify-center rounded-2xl px-2 text-sm font-medium transition-colors ${
+              className={`flex min-h-14 items-center justify-center gap-2 rounded-2xl px-3 text-base font-medium transition-colors ${
                 active
                   ? "bg-wine text-cream shadow-md"
                   : "border border-wine/30 bg-cream/70 text-wine"
               }`}
             >
-              {s.label}
+              <span aria-hidden className="text-lg leading-none">
+                {s.icon}
+              </span>
+              <span className="leading-none">{s.label}</span>
             </button>
           );
         })}
       </div>
 
       <button
-        onClick={onLockIn}
-        disabled={!date || !slot}
+        onClick={handleLockIn}
+        disabled={!date || !slot || submitting}
         className={`${btnPrimary} disabled:cursor-not-allowed disabled:opacity-40`}
       >
-        Lock it in 🔒
+        {submitting ? "Sealing it…" : "Lock it in 🔒"}
       </button>
     </div>
   );
