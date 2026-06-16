@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-cream: #fbf4ec;
+  --color-blush: #f5e0db;
+  --color-ink: #3b2530;
+  --color-ink-soft: #6b5159;
+  --color-wine: #7a2233;
+  --color-wine-dark: #581423;
+  --color-gold: #b6883b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(125% 90% at 50% 0%, #fdf8f2 0%, #f7e7e0 52%, #f1d9d2 100%);
+  background-attachment: fixed;
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent accidental text selection while tapping playful controls */
+button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---- Snap-back slider ---- */
+.charm-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--color-blush), var(--color-wine));
+  outline: none;
+  touch-action: none;
+}
+.charm-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  background: var(--color-wine);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(122, 34, 51, 0.45);
+  cursor: pointer;
+}
+.charm-slider::-moz-range-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  background: var(--color-wine);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(122, 34, 51, 0.45);
+  cursor: pointer;
+}
+
+/* ---- react-day-picker theming ---- */
+.rdp-root {
+  --rdp-accent-color: var(--color-wine);
+  --rdp-accent-background-color: var(--color-blush);
+  --rdp-day-width: 42px;
+  --rdp-day-height: 42px;
+  --rdp-day_button-width: 42px;
+  --rdp-day_button-height: 42px;
+  --rdp-today-color: var(--color-gold);
+  --rdp-disabled-opacity: 0.22;
+  --rdp-outside-opacity: 0.4;
+  --rdp-selected-border: none;
+  --rdp-weekday-opacity: 0.7;
+  margin: 0 auto;
+  font-family: var(--font-sans), sans-serif;
+  color: var(--color-ink);
+}
+.rdp-month_caption {
+  font-family: var(--font-serif), serif;
+  font-size: 1.15rem;
+  color: var(--color-wine);
+}
+.rdp-chevron {
+  fill: var(--color-wine);
+}
+.rdp-day_button {
+  border-radius: 9999px;
+}
+.rdp-selected .rdp-day_button {
+  background: var(--color-wine);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.rdp-today:not(.rdp-selected) .rdp-day_button {
+  font-weight: 700;
 }
