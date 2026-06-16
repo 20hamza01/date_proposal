@@ -57,7 +57,7 @@ export default function Home() {
   // answers
   const [slider, setSlider] = useState(8);
   const [snapBack, setSnapBack] = useState(false);
-  const [, setOuting] = useState<string | null>(null);
+  const [outing, setOuting] = useState<string | null>(null);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [slot, setSlot] = useState<Slot | null>(null);
 
@@ -115,6 +115,8 @@ export default function Home() {
               setDate={setDate}
               slot={slot}
               setSlot={setSlot}
+              charm={slider}
+              outing={outing}
               onLockIn={() => setStep(5)}
             />
           )}
@@ -220,7 +222,7 @@ function Identity({
       </h2>
       <div className="flex w-full flex-col gap-3">
         <button onClick={onYes} className={btnPrimary}>
-          Yes &mdash; the one and only.
+          Yes, the one and only.
         </button>
         <button onClick={onSister} className={btnSecondary}>
           No, I&rsquo;m her cooler sister.
@@ -515,12 +517,16 @@ function CalendarStep({
   setDate,
   slot,
   setSlot,
+  charm,
+  outing,
   onLockIn,
 }: {
   date: Date | undefined;
   setDate: (d: Date | undefined) => void;
   slot: Slot | null;
   setSlot: (s: Slot) => void;
+  charm: number;
+  outing: string | null;
   onLockIn: () => void;
 }) {
   const today = startOfDay(new Date());
@@ -537,6 +543,8 @@ function CalendarStep({
         body: JSON.stringify({
           date: format(date, "EEEE, MMMM d, yyyy"),
           slot,
+          charm,
+          outing,
         }),
       });
     } catch {

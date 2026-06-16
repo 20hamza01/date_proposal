@@ -10,14 +10,19 @@ import type { NextRequest } from "next/server";
  *   ANSWER_FROM     — verified sender, or "onboarding@resend.dev" for testing
  */
 export async function POST(request: NextRequest) {
-  let body: { date?: string; slot?: string };
+  let body: {
+    date?: string;
+    slot?: string;
+    charm?: number;
+    outing?: string | null;
+  };
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { date, slot } = body;
+  const { date, slot, charm, outing } = body;
   if (!date || !slot) {
     return Response.json(
       { error: "Missing date or slot" },
@@ -35,11 +40,21 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true, emailed: false });
   }
 
+  const charmLine =
+    typeof charm === "number"
+      ? `<p><strong>Charm rating she gave you:</strong> ${charm} / 10</p>`
+      : "";
+  const outingLine = outing
+    ? `<p><strong>Outing she picked:</strong> ${escapeHtml(outing)}</p>`
+    : "";
+
   const html = `
     <div style="font-family: ui-serif, Georgia, serif; font-size: 16px; color: #2b2b2b;">
       <p style="font-size: 22px; color: #7a2233;">She said yes. 🍷</p>
       <p><strong>Day:</strong> ${escapeHtml(date)}</p>
       <p><strong>Time:</strong> ${escapeHtml(slot)}</p>
+      ${charmLine}
+      ${outingLine}
     </div>
   `;
 
